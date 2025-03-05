@@ -7,7 +7,7 @@ pipeline {
     }
 
     tools {
-        maven 'Maven 3.9.9' // Replace with the name of your Maven installation
+        maven 'Maven'
     }
 
     stages {
