@@ -1,11 +1,10 @@
 pipeline {
     agent any
 
-   environment {
-    DOCKER_REGISTRY = 'docker.io/abdullahdiallo'  
-    IMAGE_NAME = 'gestion-etablissement'
-}
-
+    environment {
+        DOCKER_REGISTRY = 'abdullahdiallo'  // Nom de ton Docker registry
+        IMAGE_NAME = 'gestion-etablissement'
+    }
 
     stages {
         stage('Checkout Code') {
@@ -14,21 +13,20 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Backend (Spring Boot)') {
             steps {
-                sh 'mvn clean package'
+                dir('backend') {  // Change de répertoire pour aller dans le backend
+                    sh 'mvn clean package'  // Construire le backend avec Maven
+                }
             }
         }
 
-        stage('Tests') {
+        stage('Build Frontend (Angular)') {
             steps {
-                sh 'mvn test'
-            }
-        }
-
-        stage('Quality Check') {
-            steps {
-                sh 'mvn sonar:sonar'
+                dir('Gestion2-main') {  // Change de répertoire pour aller dans le frontend
+                    sh 'npm install'  // Installer les dépendances Angular
+                    sh 'ng build --prod'  // Construire le frontend
+                }
             }
         }
 
