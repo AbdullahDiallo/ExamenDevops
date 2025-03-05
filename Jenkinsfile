@@ -1,10 +1,11 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_REGISTRY = 'ton-docker-registry' // Ex: Docker Hub, Nexus...
-        IMAGE_NAME = 'gestion-etablissement'
-    }
+   environment {
+    DOCKER_REGISTRY = 'docker.io/abdullahdiallo'  
+    IMAGE_NAME = 'gestion-etablissement'
+}
+
 
     stages {
         stage('Checkout Code') {
