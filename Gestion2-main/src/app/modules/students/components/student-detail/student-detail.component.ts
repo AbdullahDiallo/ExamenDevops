@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './student-detail.component.html',
   styleUrls: ['./student-detail.component.css']
 })
+  
 export class StudentDetailComponent implements OnInit {
   studentId: number | null = null;
   student: any = null;
