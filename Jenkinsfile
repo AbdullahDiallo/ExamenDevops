@@ -7,7 +7,7 @@ pipeline {
 
     tools {
         maven 'Maven'
-        nodejs 'Node'
+        nodejs 'Node' 
         dockerTool 'Docker'
     }
 
@@ -41,22 +41,29 @@ pipeline {
 
         stage('Build Frontend (Angular)') {
             steps {
-                dir('Gestion2-main') {  
-                    sh 'npm install'  
-                    sh 'ng build --configuration=production'  
+                dir('Gestion2-main') {  // Assure-toi que ton frontend est bien dans ce dossier
+                    sh 'npm install'  // Installation des dépendances
+                    sh 'ng build --configuration=production'  // Build du frontend
                 }
             }
         }
 
-        stage('Pull Docker Images from Docker Hub') {
+        stage('Build & Push Docker Images') {
             steps {
                 script {
-                    def services = ['students', 'professeur', 'cours', 'classes', 'timetable']
+                    def services = ['students', 'professeurs', 'cours', 'classes', 'timetable']
                     for (service in services) {
-                        sh "docker pull $DOCKER_REGISTRY/${service}:latest"
+                        dir("backend/${service}") {
+                            sh "docker build -t $DOCKER_REGISTRY/${service}:latest ."
+                            sh "docker push $DOCKER_REGISTRY/${service}:latest"
+                        }
                     }
                 }
-                sh "docker pull $DOCKER_REGISTRY/frontend:latest"
+                // Build & Push du frontend
+                dir('Gestion2-main') {
+                    sh "docker build -t $DOCKER_REGISTRY/frontend:latest ."
+                    sh "docker push $DOCKER_REGISTRY/frontend:latest"
+                }
             }
         }
 
@@ -69,4 +76,4 @@ pipeline {
             }
         }
     }
-}
+} 
