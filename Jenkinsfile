@@ -28,7 +28,7 @@ pipeline {
         stage('Build Backend Services') {
             steps {
                 script {
-                    def services = ['students', 'professeurs', 'cours', 'classes', 'timetable']
+                    def services = ['students', 'professeur', 'cours', 'classes', 'timetable']
                     for (service in services) {
                         dir("backend/${service}") {
                             sh "mvn clean package"
