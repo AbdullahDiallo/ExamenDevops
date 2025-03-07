@@ -40,7 +40,7 @@ pipeline {
 
         stage('Build Frontend (Angular)') {
             steps {
-                dir('frontend') {  // Assure-toi que ton frontend est bien dans ce dossier
+                dir('Gestion2-main') {  // Assure-toi que ton frontend est bien dans ce dossier
                     sh 'npm install'  // Installation des dépendances
                     sh 'ng build --configuration=production'  // Build du frontend
                 }
