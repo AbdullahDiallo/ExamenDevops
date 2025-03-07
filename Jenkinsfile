@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = 'abdullahdiallo'  // Nom de ton Docker registry
-        IMAGE_NAME = 'gestion-etablissement'
+        DOCKER_REGISTRY = 'abdullahdiallo'
     }
 
     tools {
         maven 'Maven'
+        nodejs 'Node' 
     }
 
     stages {
@@ -17,47 +17,61 @@ pipeline {
             }
         }
 
-        stage('Build Backend (Spring Boot)') {
+        stage('Install Node.js & Angular CLI') {
             steps {
-                dir('backend') {  // Change de répertoire pour aller dans le backend
-                    sh 'mvn clean package'  // Construire le backend avec Maven
+                script {
+                    sh 'npm install -g @angular/cli'
+                }
+            }
+        }
+
+        stage('Build Backend Services') {
+            steps {
+                script {
+                    def services = ['students', 'professeurs', 'cours', 'classes', 'timetable']
+                    for (service in services) {
+                        dir("backend/${service}") {
+                            sh "mvn clean package"
+                        }
+                    }
                 }
             }
         }
 
         stage('Build Frontend (Angular)') {
             steps {
-                dir('Gestion2-main') {  // Change de répertoire pour aller dans le frontend
-                    sh 'npm install'  // Installer les dépendances Angular
-                    sh 'ng build --prod'  // Construire le frontend
+                dir('frontend') {  // Assure-toi que ton frontend est bien dans ce dossier
+                    sh 'npm install'  // Installation des dépendances
+                    sh 'ng build --configuration=production'  // Build du frontend
                 }
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build & Push Docker Images') {
             steps {
-                sh 'docker build -t $DOCKER_REGISTRY/$IMAGE_NAME:latest .'
+                script {
+                    def services = ['students', 'professeurs', 'cours', 'classes', 'timetable']
+                    for (service in services) {
+                        dir("backend/${service}") {
+                            sh "docker build -t $DOCKER_REGISTRY/${service}:latest ."
+                            sh "docker push $DOCKER_REGISTRY/${service}:latest"
+                        }
+                    }
+                }
+                // Build & Push du frontend
+                dir('Gestion2-main') {
+                    sh "docker build -t $DOCKER_REGISTRY/frontend:latest ."
+                    sh "docker push $DOCKER_REGISTRY/frontend:latest"
+                }
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                sh 'docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest'
-            }
-        }
-
-        stage('Deploy to Dev') {
-            steps {
-                sh 'docker-compose up -d'
-            }
-        }
-
-        stage('Deploy to Kubernetes (Prod)') {
+        stage('Deploy to Kubernetes') {
             when {
                 branch 'main'
             }
             steps {
-                sh 'kubectl apply -f k8s/deployment.yaml'
+                sh 'kubectl apply -f k8s/'
             }
         }
     }
