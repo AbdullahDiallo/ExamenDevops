@@ -29,7 +29,7 @@ pipeline {
         stage('Build Backend Services') {
             steps {
                 script {
-                    def services = ['students', 'professeurs', 'cours', 'classes', 'timetable']
+                    def services = ['students', 'professeur', 'cours', 'classes', 'timetable']
                     for (service in services) {
                         dir("backend/${service}") {
                             sh "mvn clean package"
@@ -51,7 +51,7 @@ pipeline {
         stage('Pull Docker Images from Docker Hub') {
             steps {
                 script {
-                    def services = ['students', 'professeurs', 'cours', 'classes', 'timetable']
+                    def services = ['students', 'professeur', 'cours', 'classes', 'timetable']
                     for (service in services) {
                         sh "docker pull $DOCKER_REGISTRY/${service}:latest"
                     }
