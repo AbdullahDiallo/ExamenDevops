@@ -41,9 +41,9 @@ pipeline {
 
         stage('Build Frontend (Angular)') {
             steps {
-                dir('Gestion2-main') {  // Assure-toi que ton frontend est bien dans ce dossier
-                    sh 'npm install'  // Installation des dépendances
-                    sh 'ng build --configuration=production'  // Build du frontend
+                dir('Gestion2-main') {  
+                    sh 'npm install'  
+                    sh 'ng build --configuration=production'  
                 }
             }
         }
@@ -51,7 +51,7 @@ pipeline {
         stage('Build & Push Docker Images') {
             steps {
                 script {
-                    def services = ['students', 'professeurs', 'cours', 'classes', 'timetable']
+                    def services = ['students', 'professeur', 'cours', 'classes', 'timetable']
                     for (service in services) {
                         dir("backend/${service}") {
                             sh "docker build -t $DOCKER_REGISTRY/${service}:latest ."
@@ -59,7 +59,7 @@ pipeline {
                         }
                     }
                 }
-                // Build & Push du frontend
+              
                 dir('Gestion2-main') {
                     sh "docker build -t $DOCKER_REGISTRY/frontend:latest ."
                     sh "docker push $DOCKER_REGISTRY/frontend:latest"
